@@ -1,0 +1,45 @@
+2002-11-28  Bruno Haible  <bruno@clisp.org>
+
+	* sharutils.m4 (ke_CHECK_COMPRESS): Attempt to compress a copy of
+	COPYING, not the COPYING file itself.
+
+2002-11-28  Bruno Haible  <bruno@clisp.org>
+
+	* intdiv0.m4: New file, from gettext-0.11.3.
+	* Makefile.am (EXTRA_DIST): Add it.
+
+2002-07-16  Paul Eggert  <eggert@twinsun.com>
+
+	Add support for large files, e.g., files larger than 2 GiB on
+	hosts where 'long' is 32 bits wide; cf. ../ChangeLog.
+
+	* Makefile.am (EXTRA_DIST): Add inttypes.m4, longlong.m4,
+	xstrtoimax.m4.
+	* inttypes.m4, longlong.m4, xstrtoimax.m4: New files, taken from
+	diffutils and fileutils.
+
+2002-07-07  Karl Eichwalder  <ke@suse.de>
+
+	* sharutils.m4: New file.  Add compress check from
+	../configure.ac and split it.
+	* Makefile.am (EXTRA_DIST): Add sharutils.m4.
+
+2002-06-25  Karl Eichwalder  <ke@suse.de>
+
+	* Makefile.am (EXTRA_DIST): Add  error.m4 malloc.m4 realloc.m4
+	(from fileutils-4.1.9).
+
+2002-06-24  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* codeset.m4: New file, from gettext-0.11.2.
+	* gettext.m4: New file, from gettext-0.11.2.
+	* glibc21.m4: New file, from gettext-0.11.2.
+	* iconv.m4: New file, from gettext-0.11.2.
+	* isc-posix.m4: New file, from gettext-0.11.2.
+	* lcmessage.m4: New file, from gettext-0.11.2.
+	* lib-ld.m4: New file, from gettext-0.11.2.
+	* lib-link.m4: New file, from gettext-0.11.2.
+	* lib-prefix.m4: New file, from gettext-0.11.2.
+	* progtest.m4: New file, from gettext-0.11.2.
+	* Makefile.am: New file.
+

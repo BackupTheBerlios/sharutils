@@ -1,0 +1,180 @@
+GNU sharutils NEWS - User visible changes.
+Copyright (C) 1994, 1995, 1996, 2002 Free Software Foundation, Inc.
+
+Version 4.3.76 - December 2002, by Karl Eichwalder
+
+* Updated translations: et fr.
+
+
+Version 4.3.75 - December 2002, by Karl Eichwalder
+
+* Fix compatibility issues (by Bruno Haible).
+
+* Support bzip2 as an alternative to gzip (by Bruno Haible).
+
+* New translations: ca et hu.
+
+* Updated translations: da de ja sv tr zh_TW.
+
+
+Version 4.3.74 - July 2002, by Karl Eichwalder
+
+* Many portability fixes (by Bruno Haible).
+
+* Updated translation: fr.
+
+
+Version 4.3.73 - July 2002, by Karl Eichwalder
+
+* Add support for large files, e.g., files larger than 2 GiB on hosts
+  where 'long' is 32 bits wide (by Paul Eggert).
+
+
+Version 4.3.72 - July 2002, by Karl Eichwalder
+
+* Updated translations: fr sv.
+
+
+Version 4.3.71 - July 2002, by Karl Eichwalder
+
+* Updated translations: da de.
+
+
+Version 4.3.70 - July 2002, by Karl Eichwalder
+
+* Don't install 'compress' link by default; provide
+  --enable-compress-link configure option.
+
+* Fix uudecode output file handling.
+
+* Updated translations: de tr.
+
+
+Version 4.3.61 - July 2002, by Karl Eichwalder
+
+* Re-add the intl subdirectory (libintl from gettext).
+
+* Bugfixes.
+
+
+Version 4.3.60 - June 2002, by Karl Eichwalder
+
+* Provide a 'compress-dummy' script.  Install it if 'compress' isn't
+  available.  Create a link 'compress' pointing to 'compress-dummy';
+  thus it is possible to unshar legacy shar files calling
+  'compress -d'.
+
+* shar: Don't offer '-Z' resp. '--compress' if the system doesn't
+  support 'compress'.
+
+
+Version 4.3.52 - June 2002, by Karl Eichwalder
+
+* sync more files coming with automake and related frame work files.
+
+* fix temp file races (shar).
+
+* fix Y2K bug (shar).
+
+* allow spaces in file names (uudecode).
+
+
+Version 4.3.51 - June 2002, by Karl Eichwalder
+
+* update automake (1.6.2) and autoconf (2.53).
+
+* update library files and m4 macros (from fileutils-4.1.9).
+
+* rename Norwegian translations: no -> nb; no@nynorsk -> nn. 
+
+
+Version 4.3.50 - June 2002, by Karl Eichwalder
+
+* update automake, autoconf, and gettext frame work.
+
+* new translations: cs da el es gl ru tr zh_TW.
+
+* updated translations: de fr ja nl sv.
+
+
+Version 4.2c - December 1996, by Ulrich Drepper
+
+* some small bug fixes
+
+* switch to automake for Makefile.in generation
+
+* use latest gettext library.
+
+Version 4.2 - November 1995, by François Pinard & Ulrich Drepper
+
+* New `mailshar' is a wrapper around `shar' and electronic mail.
+
+* New `remsync' is a Perl script which uses `mailshar' to help
+synchronizing remote directories, for sites connected only by email.
+
+* Programs (but not scripts) may now speak Dutch, French, German
+and Swedish.
+
+* Option -o offers better control over where to insert the part numbering
+in the file name.
+
+* There are the beginnings of a contrib directory.
+
+* Produced shell archive are now internationalized, too
+
+* uuencode/uudecode are now compliant to the latest POSIX.2d draft
+  (more options, new encoding).
+
+* Updated man pages for shar/unshar by Jan Djarv
+
+* Speed up unshar a little bit.
+
+* Protect against transmission error by using MD5 sum.  The old wc sum
+  is more or less useless, but still the fallback solution.
+
+Version 4.1 - November 1994, by François Pinard
+
+* GNU shar 4.0 and GNU uuencode 1.0 distributions have been merged
+into this GNU sharutils package, which replaces both.  So this release
+introduces `uuencode' and `uudecode', over `shar' and `unshar'.
+
+* Option --no-verbose (-v) is being replaced by two different options:
+first is --quiet or --silent (-q), second is --quiet-unshar (-Q).
+
+Version 4.0 - September 1994, by François Pinard
+
+* The distribution includes a Texinfo manual and Info documentation.
+Jan Djarv updated the man pages.
+
+* Mixed mode (-M) mode works reliably and is the default, intermixing
+types within file lists (-p) allows `-M'.
+
+* When piping is forbidden (-P), the shar scripts are usable by
+uudecode's requiring an argument as well as by those unable to
+process one.
+
+* Interactive scripts (-X) better protect themselves against
+`unshar' programs and procedures.  The query format is nicer.
+
+Version 3.52.3 - July 1994, by François Pinard
+
+* --gzip (-z) replaces --gzipped-files (-G).  --compress (-Z)
+replaces --compressed-files (-C).  -C is kept for a while, but
+gives a warning about being deprecated.
+
+Version 3.52.2 - July 1994, by François Pinard
+
+* Long options, among which --help and --version.
+
+* Tildas are protected at the beginning of a line.
+
+* Setting timestamps is attempted by default, using an improved
+check of the local `touch' program at unshar time.
+
+* Generated shar scripts are cleaner on various details.
+
+Version 3.52.1 - June 1994, by François Pinard
+
+* New options -G and -g<N> to use gzip while making shar files.
+
+See file `ChangeLog.OLD' for prior history about shar and unshar.

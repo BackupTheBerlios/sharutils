@@ -1,0 +1,45 @@
+#! @SH@
+# compress dummy script for uncompressing legacy shar files.
+# Copyright (C) 2002 Free Software Foundation, Inc.
+# Karl Eichwalder <ke@suse.de>, 2002.
+
+package="@PACKAGE@"
+version="@VERSION@"
+
+progname=`echo $0 | sed -e 's,.*/,,'`
+
+usage="\
+Usage: $progname OPTION FILE
+Dummy script for uncompressing legacy shar files.
+
+with OPTION in:
+      --help      display this help and exit
+      --version   output version information and exit
+
+  -d              uncompress
+
+Use \`gzip' for compressing files."
+
+while test $# -gt 0; do
+  case $1 in
+    -d) mode=$1; shift ;;
+#    -x) trace=-x; set -x; shift ;;
+    --v* ) echo "$progname - $package $version"; exit 0 ;;
+    --h* ) echo "$usage"; exit 0 ;;
+    -) break ;;
+    -*) echo "Try \`$progname --help' for more information."; exit 1 ;;
+    *) break
+  esac
+done
+
+if test -z "$mode"; then
+  echo "This is not compress."
+  echo "Try \`$progname --help' for more information."
+  exit 1
+else
+  gzip -d
+fi
+
+exit
+
+# compress-dummy.in ends here

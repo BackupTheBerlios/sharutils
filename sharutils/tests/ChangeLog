@@ -1,0 +1,84 @@
+2002-11-28  Bruno Haible  <bruno@clisp.org>
+
+	* shar-1: Make it work also when the pid has more than 5 digits.
+
+2002-11-28  Bruno Haible  <bruno@clisp.org>
+
+	* uutest-1: Fix shell syntax error.
+
+2002-07-18  Karl Eichwalder  <ke@suse.de>
+
+	* Makefile.am (all-local): New target, add shar-1.ok.
+
+2002-07-06  Karl Eichwalder  <ke@suse.de>
+
+	* uude-1: Test the error message only; avoid spurious libc output.
+
+2002-07-06  Karl Eichwalder  <ke@suse.de>
+
+	* uude-1: New file.
+	* Makefile.am (TESTS): Add uude-1.
+
+2002-06-30  Paul Eggert  <eggert@twinsun.com>
+
+	* tests/Makefile.am (shar-1.ok): Use a umask of 022, to avoid
+	spurious report of a test failure when installers have other
+	uamsks.
+	* tests/shar-1: Likewise.
+
+2002-06-26  Karl Eichwalder  <ke@suse.de>
+
+	* Makefile.am (shar-1.ok): s/configure.in/configure.ac/ and fix
+	preparation.
+	* shar-1 (result): Likewise.
+
+	* shar-1.ok: Adjust to match the Y2K fix; cf. ../src/shar.c
+	(SuSE patch).
+
+2002-06-24  Karl Eichwalder  <ke@suse.de>
+
+	* Makefile.am (shar-1.ok): Fix shell command.
+
+Tue Dec  3 16:46:33 1996  Ulrich Drepper  <drepper@cygnus.com>
+
+	* Makefile.am (shar-1.ok): Rule to generate test check file.
+
+	* uutest-1: Don't use ${..:-..}.  Get top-srcdir from environment,
+ 	not command line.
+
+	* uutest-1: Correct paths to test input and output files.
+
+	* shar-1: New file.  Test for shar.
+
+Fri Jun  7 02:57:21 1996  Ulrich Drepper  <drepper@cygnus.com>
+
+	* uutest-1: Use ${..:-..} constructs for calling uu{en,de}code.
+
+Thu Jun  6 17:40:10 1996  Ulrich Drepper  <drepper@cygnus.com>
+
+	* uutest-1: Checked intermediate results.  Reported by nelson
+	Beebe.
+
+Tue Dec 19 22:17:36 1995  Ulrich Drepper  <drepper@myware>
+
+	* Makefile.in (Makefile): Explicitly use $(SHELL) for running
+        shell scripts.
+
+Sun Nov  5 13:33:52 1995  Ulrich Drepper  <drepper@myware>
+
+	* Makefile.in (dist): Suppress error message when ln failed.
+
+Tue Aug 15 18:16:22 1995  Ulrich Drepper  <drepper@myware>
+
+	* testdata:
+	Correct data for NUL padded output format.  Previous algorithm did not
+	care for the content of the last bytes which are not filled be the
+	input data but are necessary for the last 3-byte group.
+
+Tue Aug 15 16:49:42 1995  Ulrich Drepper  <drepper@myware>
+
+	* Makefile.in (dist): Remove `copying instead' message.
+
+Thu Aug  3 00:16:48 1995  Ulrich Drepper  <drepper@myware>
+
+	* Makefile.in: Initial revision.

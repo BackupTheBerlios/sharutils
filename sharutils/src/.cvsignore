@@ -1,0 +1,10 @@
+.deps
+Makefile
+compress-dummy
+mail-files
+mailshar
+remsync
+shar
+unshar
+uudecode
+uuencode

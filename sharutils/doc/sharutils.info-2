@@ -1,0 +1,708 @@
+Dies ist sharutils.info, hergestellt von Makeinfo Version 4.2 aus
+sharutils.texi.
+
+INFO-DIR-SECTION File transfer and archiving tools
+START-INFO-DIR-ENTRY
+* Shar utilities: (sharutils).                  GNU shar utilities.
+* mail-files: (sharutils)mail-files invocation. Send files to remote site.
+* mailshar: (sharutils)mailshar invocation.     Make and send a shell archive.
+* shar: (sharutils)shar invocation.             Make a shell archive.
+* unshar: (sharutils)unshar invocation.         Explode a shell archive.
+* uudecode: (sharutils)uudecode invocation.     Restore file from 7-bits.
+* uuencode: (sharutils)uuencode invocation.     Force binary file to 7-bits.
+END-INFO-DIR-ENTRY
+
+
+File: sharutils.info,  Node: Xremsync,  Next: Package,  Prev: Formats,  Up: Remsync
+
+Format of the `.remsync' file
+=============================
+
+   The `.remsync' file saves all the information a site needs for
+properly synchronizing a directory tree with remote sites.  Even if it
+is meant to be editable using any ASCII editor, it has a very precise
+format and one should be very careful while modifying it directly, if
+ever.  The `.remsync' file is better handled through the `remsync'
+program and commands.
+
+   The `.remsync' file is made up of statements, one per line.  Each
+line begins with a statement keyword followed by a single <TAB>, then
+by one or more parameters.  The keyword may be omitted, in this case,
+the keyword is said to be _empty_, and the line begins immediately with
+the <TAB>.  After the <TAB>, if there are two parameters or more, they
+should all be separated with a single space.  There should not be any
+space between the last parameter and the end of line (unless there are
+explicit empty parameters).
+
+   The following table gives the possible keywords.  Their order of
+presentation in the table is also the order of appearance in the
+`.remsync' file.
+
+`remsync'
+     This statement identifies the `.remsync' format.  The only
+     parameter states the file format version.
+
+`local'
+     This statement should appear exactly once, and has exactly two
+     parameters.  The first parameter gives the electronic mail address
+     the other sites should use for sending synchronization packages
+     here.  The second parameter gives the name of the local directory
+     tree to synchronize, in absolute notation.
+
+`remote'
+     This statement may appear zero, one or more times.  Each occurrence
+     connects the synchronized directory tree to another tree on a
+     remote site.  The first parameter gives one electronic mail
+     address where to send remote synchronization packages.  The second
+     parameter gives the name of the corresponding directory tree for
+     this remote electronic mail address, in absolute notation.
+
+`scan'
+     This statement may appear zero, one or more times.  When it does
+     not appear at all, the whole local directory tree will always be
+     scanned, searching for files to synchronize.  When the statement
+     appears at least once, the whole local directory tree will not be
+     scanned, but only those files or directories appearing in one of
+     these statements.  Each `scan' statement has exactly one
+     parameter, giving one file or directory to be studied.  These are
+     usually given relative to top directory of the local
+     synchronization directory tree.  Shell wildcards are acceptable.
+
+`ignore'
+     This statement may appear zero, one or more times.  Each
+     occurrence has one parameter giving a regular expression,
+     according to Perl syntax for regular expressions.  These REGEXPs
+     are applied against each file resulting from the scan.  If any of
+     the `ignore' expression matches one of resulting file, the file is
+     discarded and is not subject to remote synchronization.
+
+   After all the statements beginning by the previous keywords, the
+`.remsync' file usually contains many statements having the empty
+keyword.  The empty keyword statement may appear zero, one or more
+times.  Each occurrence list one file being remotely synchronized.  The
+first parameter gives an explicit file name, usually given relative to
+the top directory of the local synchronized directory tree.  Shell
+wildcards are _not_ acceptable.
+
+   Besides the file name parameter, there are supplementary parameters
+to each empty keyword statement, each corresponding to one remote
+statement in the `.remsync' file.  The second parameter corresponds to
+the first remote, the third parameter corresponds to the second remote,
+etc.  If there are more remote statements than supplementary parameters,
+missing parameters are considered to be empty.
+
+   Each supplementary parameter usually gives the last known checksum
+value for this particular file, as computed on its corresponding
+_remote_ site.  The parameter contains a dash `-' while the remote
+checksum is unknown.  The checksum value for the _local_ copy of the
+file is never kept anywhere in the `.remsync' file.  The special value
+`666' indicates a checksum from hell, used when the remote file is
+known to exist, but for which contradictory information has been
+received from various sources.
+
+
+File: sharutils.info,  Node: Package,  Next: Alternatives,  Prev: Xremsync,  Up: Remsync
+
+Format of synchronisation packages
+==================================
+
+   Each synchronisation package is transmitted as a file named
+`.remsync.tar.gz', which has the format of a `tar' archive, further
+compressed with the `gzip' program.  This archive always contains a
+file named `.remsync-work/orders', and zero or more files named
+`.remsync-work/1', `.remsync-work/2', etc.  It contains no other files.
+Each numbered file is actually a full, non-modified file pertaining to
+the hierarchy of the project, as sent from the remote site.
+
+   The `.remsync-work/orders' file drives the processing of the
+received synchronization package.  This ASCII file format quite closely
+resembles the `.remsync' format, which we do not explain again here.
+Only the keywords and their associated parameters are different, and
+there is no empty keyword.  The following table gives the possible
+keywords, in the order where they normally appear.
+
+`format'
+`title'
+`here'
+`remote'
+`ignore'
+`scan'
+     All those keywords are used exactly the same way as within the
+     `.remsync' file, and their format is not explained again here.
+     They state the file format, project title, local and possibly many
+     remote identifications and directories, zero or more ignores, zero
+     or more scans; all of these exactly as known to the remote site who
+     created the synchronization package.  In particular, the `here'
+     line states the originating site of the package rather than the
+     receiving one; the receiving site should still be described by one
+     of the `remote' lines.
+
+`visit'
+     This statement appears exactly once, and has one numeric parameter.
+     It specifies the zero-based index in the list of remote lines
+     above.  The index identifies the receiving site, that is, the site
+     to which this package was sent.
+
+`copy'
+     This statement appears exactly once, and has one or more numeric
+     parameters.  Each specifies a zero-based index in the list of
+     remote lines above.  All indices specify the set of all sites who
+     where broadcasted simultaneously, at the time this synchronization
+     package was issued.  The index specified by the `visit' line
+     should also be one of the indices of the `copy' lines.  The order
+     in which the indices are given is important, as it also
+     establishes the order in which file signatures are listed on the
+     `check' lines below.
+
+`check'
+     This statement may appear zero, one or more times.  Each occurrence
+     describes one file known to the project at the originating site,
+     and there is exactly one occurrence for each known file in the
+     project.  Each `check' line has exactly N+2 parameters, where N is
+     the number of parameters of the `copy' command.  The first
+     parameter gives a file name, relative to the top directory.  The
+     second parameter gives the file signature for this file, as
+     computed at the originating site.  For each remote site presented
+     in the `copy' command, and exactly in the same order, each
+     supplementary parameter gives the originator's idea of the
+     signature for the said file at this remote site.  A dash (`-')
+     replaces the signature for a file known _not_ to exist.
+
+`update'
+     This statement may appear zero, one or more times.  Each occurrence
+     describes what to do with one of the `.remsync-work/N' files,
+     distributed within the synchronization package.  In fact, there
+     should be exactly as many `update' lines that there are numbered
+     files in the synchronization package.  Usually, each `update' line
+     immediately follows the corresponding `check' line, and has
+     exactly three parameters.  The first parameter gives a file name
+     in the project, relative to the top level directory of the
+     hierarchy.  The second parameter gives a file signature which the
+     said file should have at the receiving site, for it to be replaced
+     safely, with no questions asked (this is the originator's idea of
+     what the file signature _was_, on the receiving site, prior to its
+     replacement).  A dash (`-') replaces this signature for a file
+     known _not_ to exist.  The third parameter is the number N, which
+     indicates the file `.remsync-work/N' in the synchronization
+     package distribution which should replace the corresponding
+     project file at the receiving site.
+
+
+File: sharutils.info,  Node: Alternatives,  Next: Previous,  Prev: Package,  Up: Remsync
+
+Other means to synchronization
+==============================
+
+   One correspondent thinks that perhaps the news distribution mechanism
+could be pressed into service for this job.  I could have started from
+C-news, say, instead of from scratch, and have progressively bent
+C-news to behave like I wanted.
+
+   My feeling is that the route was shorter as I did it, from scratch,
+that it would have been from C-news.  Of course, I could have removed
+the heavy administrative details of C-news: the history and `expire',
+the daemons, the `cron' entries, etc., then added the interactive
+features and specialized behaviors, but all this clean up would
+certainly have took energies.  Right now, non counting the subsidiary
+scripts and shar/unshar sources, the heart of the result is a single
+(1200 lines) script written in Perl, which I find fairly more smaller
+and maintainable than a patched C-news distribution would have been.
+
+
+File: sharutils.info,  Node: Previous,  Prev: Alternatives,  Up: Remsync
+
+Documentation for obsolete scripts
+==================================
+
+   This is merely a place holder for previous documentation, waiting
+that I clean it up.  You have no interest in reading further down.
+
+* Menu:
+
+* mailsync::                    mailsync
+* resync::                      resync
+
+
+File: sharutils.info,  Node: mailsync,  Next: resync,  Prev: Previous,  Up: Previous
+
+mailsync
+--------
+
+     Usage: mailsync [ OPTION ] ... [ EMAIL_ADDRESS ] [ DIRECTORY ]
+        or: mailsync [ OPTION ] ... SYNC_DIRECTORY
+
+   Option -i simply sends a `ihave' package, with no bulk files.
+Option -n inhibits any destructive operation and mailing.
+
+   In the first form of the call, find a synchronisation directory in
+DIRECTORY aimed towards some EMAIL_ADDRESS, then proceed with this
+synchronisation directory.  EMAIL_ADDRESS may be the name of a file
+containing a distribution list.  If EMAIL_ADDRESS is not specified, all
+the synchronisation directories at the top level in DIRECTORY are
+processed in turn.  If DIRECTORY is not specified, the current
+directory is used.
+
+   In the second form of the call, proceed only with the given
+synchronisation directory SYNC_DIRECTORY.
+
+   For proceeding with a synchronisation directory, whatever the form of
+the call was, this script reads the `ident' files it contains to set
+the local user and directory and the remote user and directory.  Then,
+selected files under the local directory which are modified in regard
+to the corresponding files in the remote directory are turned into a
+synchronisation package which is mailed to the remote user.
+
+   The list of selected files or directories to synchronize from the
+local directory are given in the `list' file in the synchronisation
+directory.  If this `list' file is missing, all files under the local
+directory are synchronized.
+
+   What I usually do is to `cd' at the top of the directory tree to be
+synchronized, then to type `mailsync' without parameters.  This will
+automatically prepare as many synchronisation packages as there are
+mirror systems, then email multipart shars to each of them.  Note that
+the synchronisation package is not identical for each mirror system,
+because they do not usually have the same state of synchronisation.
+
+   `mailsync' will refuse to work if anything needs to be hand cleaned
+from a previous execution of `mailsync' or `resync'.  Check for some
+remaining `_syncbulk' or `_synctemp' directory, or for a `_syncrm'
+script.
+
+     TODO:
+     - interrogate the user if `ident' file missing.
+     - automatically construct the local user address.
+     - create the synchronisation directory on the fly.
+     - avoid duplicating work as far as possible for multiple sends.
+     - have a quicker mode, depending on stamps, not on checksums.
+     - never send core, executables, backups, `.nsf*', `*/_synctemp/*', etc.
+
+
+File: sharutils.info,  Node: resync,  Next: GNU Free Documentation License,  Prev: mailsync,  Up: Previous
+
+resync
+------
+
+     Usage: resync [ OPTION ]... TAR_FILE
+        or: resync [ OPTION ]... UNTARED_DIRECTORY
+
+   Given a tar file produced by mailsync at some remote end and already
+reconstructed on this end using unshar, or a directory containing the
+already untared invoice, apply the synchronization package locally.
+
+   Option -n inhibits destroying or creating files, but does everything
+else.  It will in particular create a synchronization directory if
+necessary, produce the `_syncbulk' directory and the `_syncrm' script.
+
+   The synchronization directory for the package is automatically
+retrieved or, if not found, created and initialized.  `resync' keeps
+telling you what it is doing.
+
+   There are a few cases when a resync should not complete without
+manual intervention.  The common case is that several sites update the
+very same files differently since they were last resync'ed, and then
+mailsync to each other.  The prerequisite checksum will then fail, and
+the files are then kept into the `_syncbulk' tree, which has a shape
+similar to the directory tree in which the files where supposed to go.
+For GNU Emacs users, a very handy package, called emerge, written by
+Dale Worley <drw@kutta.mit.edu>, helps reconciling two files
+interactiveley.  The `_syncbulk' tree should be explicitely deleted
+after the hand synchronisation.
+
+   Another case of human intervention is when files are deleted at the
+mailsync'ing site.  By choice, all deletions on the receiving side are
+accumulated in a `_syncrm' script, which is not executed automatically.
+Explicitely executed, `_syncrm' will remove any file in the receiving
+tree which does not exist anymore on the sender system.  I often edit
+`_syncrm' before executing it, to remove the unwanted deletions (beware
+the double negation :-).  The script removes itself.
+
+   All the temporary files, while resynchronizing, are held in
+`_synctemp', which is deleted afterwards; if something goes wrong, this
+directory should also be cleaned out by hand.  `resync' will refuse to
+work if anything remains to be hand cleaned.
+
+     TODO:
+     - interrogates the user if missing receiving directory in `ident'.
+     - allow `remote.sum' to be empty or non-existent.
+
+
+File: sharutils.info,  Node: GNU Free Documentation License,  Prev: resync,  Up: Top
+
+GNU Free Documentation License
+******************************
+
+                        Version 1.1, March 2000
+
+* Menu:
+
+* How to use this License for your documents::
+
+     Copyright (C) 2000  Free Software Foundation, Inc.
+     59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+     
+     Everyone is permitted to copy and distribute verbatim copies
+     of this license document, but changing it is not allowed.
+
+  0. PREAMBLE
+
+     The purpose of this License is to make a manual, textbook, or other
+     written document "free" in the sense of freedom: to assure everyone
+     the effective freedom to copy and redistribute it, with or without
+     modifying it, either commercially or noncommercially.  Secondarily,
+     this License preserves for the author and publisher a way to get
+     credit for their work, while not being considered responsible for
+     modifications made by others.
+
+     This License is a kind of "copyleft", which means that derivative
+     works of the document must themselves be free in the same sense.
+     It complements the GNU General Public License, which is a copyleft
+     license designed for free software.
+
+     We have designed this License in order to use it for manuals for
+     free software, because free software needs free documentation: a
+     free program should come with manuals providing the same freedoms
+     that the software does.  But this License is not limited to
+     software manuals; it can be used for any textual work, regardless
+     of subject matter or whether it is published as a printed book.
+     We recommend this License principally for works whose purpose is
+     instruction or reference.
+
+  1. APPLICABILITY AND DEFINITIONS
+
+     This License applies to any manual or other work that contains a
+     notice placed by the copyright holder saying it can be distributed
+     under the terms of this License.  The "Document", below, refers to
+     any such manual or work.  Any member of the public is a licensee,
+     and is addressed as "you".
+
+     A "Modified Version" of the Document means any work containing the
+     Document or a portion of it, either copied verbatim, or with
+     modifications and/or translated into another language.
+
+     A "Secondary Section" is a named appendix or a front-matter
+     section of the Document that deals exclusively with the
+     relationship of the publishers or authors of the Document to the
+     Document's overall subject (or to related matters) and contains
+     nothing that could fall directly within that overall subject.
+     (For example, if the Document is in part a textbook of
+     mathematics, a Secondary Section may not explain any mathematics.)
+     The relationship could be a matter of historical connection with
+     the subject or with related matters, or of legal, commercial,
+     philosophical, ethical or political position regarding them.
+
+     The "Invariant Sections" are certain Secondary Sections whose
+     titles are designated, as being those of Invariant Sections, in
+     the notice that says that the Document is released under this
+     License.
+
+     The "Cover Texts" are certain short passages of text that are
+     listed, as Front-Cover Texts or Back-Cover Texts, in the notice
+     that says that the Document is released under this License.
+
+     A "Transparent" copy of the Document means a machine-readable copy,
+     represented in a format whose specification is available to the
+     general public, whose contents can be viewed and edited directly
+     and straightforwardly with generic text editors or (for images
+     composed of pixels) generic paint programs or (for drawings) some
+     widely available drawing editor, and that is suitable for input to
+     text formatters or for automatic translation to a variety of
+     formats suitable for input to text formatters.  A copy made in an
+     otherwise Transparent file format whose markup has been designed
+     to thwart or discourage subsequent modification by readers is not
+     Transparent.  A copy that is not "Transparent" is called "Opaque".
+
+     Examples of suitable formats for Transparent copies include plain
+     ASCII without markup, Texinfo input format, LaTeX input format,
+     SGML or XML using a publicly available DTD, and
+     standard-conforming simple HTML designed for human modification.
+     Opaque formats include PostScript, PDF, proprietary formats that
+     can be read and edited only by proprietary word processors, SGML
+     or XML for which the DTD and/or processing tools are not generally
+     available, and the machine-generated HTML produced by some word
+     processors for output purposes only.
+
+     The "Title Page" means, for a printed book, the title page itself,
+     plus such following pages as are needed to hold, legibly, the
+     material this License requires to appear in the title page.  For
+     works in formats which do not have any title page as such, "Title
+     Page" means the text near the most prominent appearance of the
+     work's title, preceding the beginning of the body of the text.
+
+  2. VERBATIM COPYING
+
+     You may copy and distribute the Document in any medium, either
+     commercially or noncommercially, provided that this License, the
+     copyright notices, and the license notice saying this License
+     applies to the Document are reproduced in all copies, and that you
+     add no other conditions whatsoever to those of this License.  You
+     may not use technical measures to obstruct or control the reading
+     or further copying of the copies you make or distribute.  However,
+     you may accept compensation in exchange for copies.  If you
+     distribute a large enough number of copies you must also follow
+     the conditions in section 3.
+
+     You may also lend copies, under the same conditions stated above,
+     and you may publicly display copies.
+
+  3. COPYING IN QUANTITY
+
+     If you publish printed copies of the Document numbering more than
+     100, and the Document's license notice requires Cover Texts, you
+     must enclose the copies in covers that carry, clearly and legibly,
+     all these Cover Texts: Front-Cover Texts on the front cover, and
+     Back-Cover Texts on the back cover.  Both covers must also clearly
+     and legibly identify you as the publisher of these copies.  The
+     front cover must present the full title with all words of the
+     title equally prominent and visible.  You may add other material
+     on the covers in addition.  Copying with changes limited to the
+     covers, as long as they preserve the title of the Document and
+     satisfy these conditions, can be treated as verbatim copying in
+     other respects.
+
+     If the required texts for either cover are too voluminous to fit
+     legibly, you should put the first ones listed (as many as fit
+     reasonably) on the actual cover, and continue the rest onto
+     adjacent pages.
+
+     If you publish or distribute Opaque copies of the Document
+     numbering more than 100, you must either include a
+     machine-readable Transparent copy along with each Opaque copy, or
+     state in or with each Opaque copy a publicly-accessible
+     computer-network location containing a complete Transparent copy
+     of the Document, free of added material, which the general
+     network-using public has access to download anonymously at no
+     charge using public-standard network protocols.  If you use the
+     latter option, you must take reasonably prudent steps, when you
+     begin distribution of Opaque copies in quantity, to ensure that
+     this Transparent copy will remain thus accessible at the stated
+     location until at least one year after the last time you
+     distribute an Opaque copy (directly or through your agents or
+     retailers) of that edition to the public.
+
+     It is requested, but not required, that you contact the authors of
+     the Document well before redistributing any large number of
+     copies, to give them a chance to provide you with an updated
+     version of the Document.
+
+  4. MODIFICATIONS
+
+     You may copy and distribute a Modified Version of the Document
+     under the conditions of sections 2 and 3 above, provided that you
+     release the Modified Version under precisely this License, with
+     the Modified Version filling the role of the Document, thus
+     licensing distribution and modification of the Modified Version to
+     whoever possesses a copy of it.  In addition, you must do these
+     things in the Modified Version:
+
+     A. Use in the Title Page (and on the covers, if any) a title
+     distinct    from that of the Document, and from those of previous
+     versions    (which should, if there were any, be listed in the
+     History section    of the Document).  You may use the same title
+     as a previous version    if the original publisher of that version
+     gives permission.
+     B. List on the Title Page, as authors, one or more persons or
+     entities    responsible for authorship of the modifications in the
+     Modified    Version, together with at least five of the principal
+     authors of the    Document (all of its principal authors, if it
+     has less than five).
+     C. State on the Title page the name of the publisher of the
+     Modified Version, as the publisher.
+     D. Preserve all the copyright notices of the Document.
+     E. Add an appropriate copyright notice for your modifications
+     adjacent to the other copyright notices.
+     F. Include, immediately after the copyright notices, a license
+     notice    giving the public permission to use the Modified Version
+     under the    terms of this License, in the form shown in the
+     Addendum below.
+     G. Preserve in that license notice the full lists of Invariant
+     Sections    and required Cover Texts given in the Document's
+     license notice.
+     H. Include an unaltered copy of this License.
+     I. Preserve the section entitled "History", and its title, and add
+     to    it an item stating at least the title, year, new authors, and
+       publisher of the Modified Version as given on the Title Page.
+     If    there is no section entitled "History" in the Document,
+     create one    stating the title, year, authors, and publisher of
+     the Document as    given on its Title Page, then add an item
+     describing the Modified    Version as stated in the previous
+     sentence.
+     J. Preserve the network location, if any, given in the Document for
+       public access to a Transparent copy of the Document, and
+     likewise    the network locations given in the Document for
+     previous versions    it was based on.  These may be placed in the
+     "History" section.     You may omit a network location for a work
+     that was published at    least four years before the Document
+     itself, or if the original    publisher of the version it refers
+     to gives permission.
+     K. In any section entitled "Acknowledgements" or "Dedications",
+     preserve the section's title, and preserve in the section all the
+      substance and tone of each of the contributor acknowledgements
+     and/or dedications given therein.
+     L. Preserve all the Invariant Sections of the Document,
+     unaltered in their text and in their titles.  Section numbers
+     or the equivalent are not considered part of the section titles.
+     M. Delete any section entitled "Endorsements".  Such a section
+     may not be included in the Modified Version.
+     N. Do not retitle any existing section as "Endorsements"    or to
+     conflict in title with any Invariant Section.
+     If the Modified Version includes new front-matter sections or
+     appendices that qualify as Secondary Sections and contain no
+     material copied from the Document, you may at your option
+     designate some or all of these sections as invariant.  To do this,
+     add their titles to the list of Invariant Sections in the Modified
+     Version's license notice.  These titles must be distinct from any
+     other section titles.
+
+     You may add a section entitled "Endorsements", provided it contains
+     nothing but endorsements of your Modified Version by various
+     parties-for example, statements of peer review or that the text has
+     been approved by an organization as the authoritative definition
+     of a standard.
+
+     You may add a passage of up to five words as a Front-Cover Text,
+     and a passage of up to 25 words as a Back-Cover Text, to the end
+     of the list of Cover Texts in the Modified Version.  Only one
+     passage of Front-Cover Text and one of Back-Cover Text may be
+     added by (or through arrangements made by) any one entity.  If the
+     Document already includes a cover text for the same cover,
+     previously added by you or by arrangement made by the same entity
+     you are acting on behalf of, you may not add another; but you may
+     replace the old one, on explicit permission from the previous
+     publisher that added the old one.
+
+     The author(s) and publisher(s) of the Document do not by this
+     License give permission to use their names for publicity for or to
+     assert or imply endorsement of any Modified Version.
+
+  5. COMBINING DOCUMENTS
+
+     You may combine the Document with other documents released under
+     this License, under the terms defined in section 4 above for
+     modified versions, provided that you include in the combination
+     all of the Invariant Sections of all of the original documents,
+     unmodified, and list them all as Invariant Sections of your
+     combined work in its license notice.
+
+     The combined work need only contain one copy of this License, and
+     multiple identical Invariant Sections may be replaced with a single
+     copy.  If there are multiple Invariant Sections with the same name
+     but different contents, make the title of each such section unique
+     by adding at the end of it, in parentheses, the name of the
+     original author or publisher of that section if known, or else a
+     unique number.  Make the same adjustment to the section titles in
+     the list of Invariant Sections in the license notice of the
+     combined work.
+
+     In the combination, you must combine any sections entitled
+     "History" in the various original documents, forming one section
+     entitled "History"; likewise combine any sections entitled
+     "Acknowledgements", and any sections entitled "Dedications".  You
+     must delete all sections entitled "Endorsements."
+
+  6. COLLECTIONS OF DOCUMENTS
+
+     You may make a collection consisting of the Document and other
+     documents released under this License, and replace the individual
+     copies of this License in the various documents with a single copy
+     that is included in the collection, provided that you follow the
+     rules of this License for verbatim copying of each of the
+     documents in all other respects.
+
+     You may extract a single document from such a collection, and
+     distribute it individually under this License, provided you insert
+     a copy of this License into the extracted document, and follow
+     this License in all other respects regarding verbatim copying of
+     that document.
+
+  7. AGGREGATION WITH INDEPENDENT WORKS
+
+     A compilation of the Document or its derivatives with other
+     separate and independent documents or works, in or on a volume of
+     a storage or distribution medium, does not as a whole count as a
+     Modified Version of the Document, provided no compilation
+     copyright is claimed for the compilation.  Such a compilation is
+     called an "aggregate", and this License does not apply to the
+     other self-contained works thus compiled with the Document, on
+     account of their being thus compiled, if they are not themselves
+     derivative works of the Document.
+
+     If the Cover Text requirement of section 3 is applicable to these
+     copies of the Document, then if the Document is less than one
+     quarter of the entire aggregate, the Document's Cover Texts may be
+     placed on covers that surround only the Document within the
+     aggregate.  Otherwise they must appear on covers around the whole
+     aggregate.
+
+  8. TRANSLATION
+
+     Translation is considered a kind of modification, so you may
+     distribute translations of the Document under the terms of section
+     4.  Replacing Invariant Sections with translations requires special
+     permission from their copyright holders, but you may include
+     translations of some or all Invariant Sections in addition to the
+     original versions of these Invariant Sections.  You may include a
+     translation of this License provided that you also include the
+     original English version of this License.  In case of a
+     disagreement between the translation and the original English
+     version of this License, the original English version will prevail.
+
+  9. TERMINATION
+
+     You may not copy, modify, sublicense, or distribute the Document
+     except as expressly provided for under this License.  Any other
+     attempt to copy, modify, sublicense or distribute the Document is
+     void, and will automatically terminate your rights under this
+     License.  However, parties who have received copies, or rights,
+     from you under this License will not have their licenses
+     terminated so long as such parties remain in full compliance.
+
+ 10. FUTURE REVISIONS OF THIS LICENSE
+
+     The Free Software Foundation may publish new, revised versions of
+     the GNU Free Documentation License from time to time.  Such new
+     versions will be similar in spirit to the present version, but may
+     differ in detail to address new problems or concerns.  See
+     http://www.gnu.org/copyleft/.
+
+     Each version of the License is given a distinguishing version
+     number.  If the Document specifies that a particular numbered
+     version of this License "or any later version" applies to it, you
+     have the option of following the terms and conditions either of
+     that specified version or of any later version that has been
+     published (not as a draft) by the Free Software Foundation.  If
+     the Document does not specify a version number of this License,
+     you may choose any version ever published (not as a draft) by the
+     Free Software Foundation.
+
+
+
+File: sharutils.info,  Node: How to use this License for your documents,  Up: GNU Free Documentation License
+
+ADDENDUM: How to use this License for your documents
+====================================================
+
+   To use this License in a document you have written, include a copy of
+the License in the document and put the following copyright and license
+notices just after the title page:
+
+
+       Copyright (C)  YEAR  YOUR NAME.
+       Permission is granted to copy, distribute and/or modify this document
+       under the terms of the GNU Free Documentation License, Version 1.1
+       or any later version published by the Free Software Foundation;
+       with the Invariant Sections being LIST THEIR TITLES, with the
+       Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
+       A copy of the license is included in the section entitled ``GNU
+       Free Documentation License''.
+If you have no Invariant Sections, write "with no Invariant
+Sections" instead of saying which ones are invariant.  If you have no
+Front-Cover Texts, write "no Front-Cover Texts" instead of "Front-Cover
+Texts being LIST"; likewise for Back-Cover Texts.
+
+   If your document contains nontrivial examples of program code, we
+recommend releasing these examples in parallel under your choice of
+free software license, such as the GNU General Public License, to
+permit their use in free software.
+
+
